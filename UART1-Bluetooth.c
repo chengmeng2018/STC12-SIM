@@ -3,7 +3,7 @@
 #include "reg51.h"
 #include "intrins.h"
 #include "UART1-Bluetooth.h"
-#include "type.h"
+#include "Command.h"
 #define FOSC 11059200L      //System frequency
 #define BAUD 9600           //UART baudrate
 
@@ -29,8 +29,8 @@ void Uart1Init_Bluetooth()
 #elif (PARITYBIT == SPACE_PARITY)
   SCON = 0xd2;            //9-bit variable UART, parity bit initial to 0
 #endif
-
-  TMOD = 0x20;            //Set Timer1 as 8-bit auto reload mode
+  TMOD &= 0x0f;
+  TMOD |= 0x20;            //Set Timer1 as 8-bit auto reload mode
   TH1 = TL1 = - (FOSC / 12 / 32 / BAUD); //Set auto-reload vaule
   TR1 = 1;                //Timer1 start run
   ES = 1;                 //Enable UART interrupt
@@ -41,14 +41,17 @@ void Uart1Init_Bluetooth()
 /*----------------------------
 UART interrupt service routine
 ----------------------------*/
-extern RecBuff BTBuff;//蓝牙接收缓存数据
+extern  RecBuff BTBuff;
 void Uart_Isr() interrupt 4
 {
   if (RI)
   {
     RI = 0;             //Clear receive interrupt flag
-    BTBuff.strBuff[BTBuff.end] = SBUF;          //循环接收数据
-		BTBuff.end=(BTBuff.end+1)%_BuffLengh;
+    //接收数据
+		if( GetMessage (&BTBuff, SBUF)==NEWMes)
+		{
+			ES=0;//关串口等待书处理
+		}
   }
 
   if (TI)

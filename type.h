@@ -10,8 +10,10 @@ typedef struct
 {
 	char begin;
 	char end;
+	char state;
 	char strBuff[_BuffLengh];
 }RecBuff;
 
+enum RecState{NEWMes,WAITMes,RECMes};
 
 #endif

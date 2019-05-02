@@ -417,9 +417,9 @@
               <FilePath>.\Command.c</FilePath>
             </File>
             <File>
-              <FileName>Command.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Command.h</FilePath>
+              <FileName>Time.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Time.c</FilePath>
             </File>
           </Files>
         </Group>
