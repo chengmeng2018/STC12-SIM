@@ -1,0 +1,6 @@
+﻿
+#增加文件夹屏蔽
+
+Objects/
+Listings/
+*.uvgui.*
