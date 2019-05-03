@@ -2,14 +2,15 @@
 // File Name: Time.h
 // Author: 蒙蒙plus
 // Date: 2019年4月6日
-// Version: V1.0
+// Version: V1.1
 
 #include "Time.h"
 
 //#message "Time.h将使用REGX52.H头文件"
 #include <STC12C5A60S2.H>
 
-#define FOSC 11059200L      //System frequency
+
+#define FOSC 12000000L      //System frequency
 //#message Time.h设定的晶振频率为 12000000L
 //---TMOD工作设置---//
 #define  T0NoReload13B 0x00
@@ -55,6 +56,7 @@ void TimeInit(unsigned int Reload)
     TL0=T0Reload;
     EA=1;//开总中断
     T0_EnIT(1);//开定时器0中断
+		T0_RUN(1);//关定时器
 }
 /****************************
 //Function Name:  非阻塞延时函数
@@ -65,43 +67,50 @@ void TimeInit(unsigned int Reload)
 //***************************/
 void DelayNonBlocking(DelayTypedef* DelayStruct)
 {
-	    if(DelayStruct->State ==Stop)
-			{
-			return;
-			}
-    if(DelayStruct->State ==Start)
+    switch(DelayStruct->State)
     {
+    case Stop:
+        return;
+        break;
+    case Start:
         DelayStruct->StartMs=SystemTick;
         DelayStruct->EndMs = DelayStruct->StartMs+DelayStruct->DelayMs;
-    }
-    if( DelayStruct->EndMs > DelayStruct->StartMs)
-    {
-        if( SystemTick > DelayStruct->EndMs)
+        DelayStruct->State=Wait;
+        break;
+    case Wait:
+        if( DelayStruct->EndMs > DelayStruct->StartMs)
         {
-            DelayStruct->State=Ok;
+            if( SystemTick > DelayStruct->EndMs)
+            {
+                DelayStruct->State=Ok;
+            }
+            else
+            {
+                DelayStruct->State=Wait;
+            }
         }
         else
         {
-            DelayStruct->State=Wait;
+            if( SystemTick<DelayStruct->StartMs && SystemTick > DelayStruct->EndMs)
+            {
+                DelayStruct->State=Ok;
+            }
+            else
+            {
+                DelayStruct->State=Wait;
+            }
         }
-    }
-    else
-    {
-        if( SystemTick<DelayStruct->StartMs && SystemTick > DelayStruct->EndMs)
-        {
-            DelayStruct->State=Ok;
-        }
-        else
-        {
-            DelayStruct->State=Wait;
-        }
+        break;
+    case Ok:
+        //DelayStruct->State =Stop;
+        break;
     }
 }
 /****************************
 //Function Name:  ms级延时函数
-//Input : 延时时间 最大65.535s
+//Input : 延时时间
 //Output: 延时完毕退出
-//Description: 
+//Description:
 //
 //***************************/
 void DelayBlocking(unsigned int Time)

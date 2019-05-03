@@ -27,9 +27,9 @@ typedef struct
 #define T1_EnIT(State)  (ET1=State)
 //定时器初始化函数 Reload 重载频率 频率范围约(100~100000)
 void TimeInit(unsigned int Reload);
-//非阻塞延时函数
-void DelayNonBlocking(DelayTypedef* DelayStruct);
 //阻塞延时函数
+void DelayNonBlocking(DelayTypedef* DelayStruct);
+//非阻塞延时函数
 void DelayBlocking(unsigned int Time);
 
 #endif
